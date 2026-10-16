@@ -853,9 +853,20 @@ function wire(){
     pin.addEventListener('click', () => { if(!dragged) select(w.id, true); });
     inner.append(pin);
   }
-  rows.addEventListener('click', e => { const b = e.target.closest('.row'); if(!b) return; select(b.dataset.id, true); if(!narrow()) mapEl.scrollIntoView({behavior:'smooth', block:'start'}); });
+  rows.addEventListener('click', e => { const b = e.target.closest('.row'); if(b) focusOn(b.dataset.id); });
   renderLang();
   apply();
+}
+
+// «На мапі»: прокрутити до мапи, наблизити її до виноробні й виділити точку
+function focusOn(id){
+  select(id, false);
+  mapEl.scrollIntoView({behavior:'smooth', block:'center'});
+  const pin = mapEl.querySelector(`.pin[data-id="${id}"]`); if(!pin) return;
+  const r = mapEl.getBoundingClientRect();
+  const x = parseFloat(pin.style.left) / 100 * r.width, y = parseFloat(pin.style.top) / 100 * r.height;
+  const nk = narrow() ? 3.2 : 2.2;
+  k = nk; tx = r.width / 2 - x * nk; ty = r.height / 2 - y * nk; apply(true);
 }
 
 // Перемальовує всі тексти сторінки поточною мовою
