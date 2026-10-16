@@ -141,15 +141,23 @@ h3{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;t
 .rows .wl{border-top:0}
 .row em{grid-row:auto;text-decoration:underline;text-underline-offset:4px}
 .row[aria-current="true"] b{text-decoration:none}
+
+/* — перемикач мови — */
+header{position:relative}
+.langs{align-self:flex-end;display:flex;gap:2px;border:1px solid var(--ink)}
+.langs button{font:500 12px/1 var(--body);letter-spacing:.16em;padding:8px 12px;border:0;background:var(--bg);color:var(--ink);cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.langs button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 </style>
 
 </head>
 <body>
 <div class="wrap">
   <header>
-    <p class="eyebrow">100 років тому вперед</p>
-    <h1>Винна мапа України</h1>
-    <p class="lede">Натисніть на точку, щоб побачити виноробню та її вина. Мапу можна наближати двома пальцями.</p>
+    <div class="langs" role="group" aria-label="Мова / Language"><button type="button" data-lang="uk" aria-pressed="true">UA</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+    <p class="eyebrow" id="t-brand">100 років тому вперед</p>
+    <h1 id="t-h1">Винна мапа України</h1>
+    <p class="lede" id="t-lede">Натисніть на точку, щоб побачити виноробню та її вина. Мапу можна наближати двома пальцями.</p>
   </header>
 
   <div class="stage">
@@ -161,11 +169,11 @@ h3{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;t
   <div class="shade" id="shade"></div>
 
   <section class="list">
-    <h3>Винна карта</h3>
+    <h3 id="t-list">Винна карта</h3>
     <div class="rows" id="rows"></div>
   </section>
 
-  <p class="note">Ціни вказано за келих 150 мл і за пляшку 750 мл.</p>
+  <p class="note" id="t-note">Ціни вказано за келих 150 мл і за пляшку 750 мл.</p>
 </div>
 
 <script type="module">
@@ -195,7 +203,9 @@ const REGIONS = [
       "g": 280,
       "b": 1450
      }
-    ]
+    ],
+    "fact_en": "On the slopes above Ukraine’s largest freshwater lake, the vineyards waited ten years before giving their first wine.",
+    "name_en": "Chateau Pinot"
    },
    {
     "id": "kolonist",
@@ -222,7 +232,9 @@ const REGIONS = [
       "g": 300,
       "b": 1500
      }
-    ]
+    ],
+    "fact_en": "Instead of international grapes, Kolonist bets on native ones: Sukholymanskyi White and Odesa Black.",
+    "name_en": "Kolonist"
    },
    {
     "id": "shabo",
@@ -243,9 +255,12 @@ const REGIONS = [
       "g": 200,
       "b": 1000
      }
-    ]
+    ],
+    "fact_en": "The oldest wine land in Ukraine."
    }
-  ]
+  ],
+  "region_en": "Odesa region",
+  "head_en": "Wines of the Odesa region"
  },
  {
   "head": "Вина Миколаївщини",
@@ -296,9 +311,12 @@ const REGIONS = [
       "g": null,
       "b": 5000
      }
-    ]
+    ],
+    "fact_en": "Winemaking that began at a summer house between two estuaries. The founders studied the terroir of Cape Beykush on the Black Sea coast and gathered a team of scientists, farmers and experienced winemakers."
    }
-  ]
+  ],
+  "region_en": "Mykolaiv region",
+  "head_en": "Wines of the Mykolaiv region"
  },
  {
   "head": "Вина Дніпропетровщини",
@@ -317,11 +335,16 @@ const REGIONS = [
       "t": "Біле вино",
       "n": "Рислінг",
       "g": 330,
-      "b": 1650
+      "b": 1650,
+      "n_en": "Riesling"
      }
-    ]
+    ],
+    "fact_en": "A winery in the Dnipropetrovsk region working with classic wine grapes.",
+    "name_en": "Driukovsky Wines"
    }
-  ]
+  ],
+  "region_en": "Dnipropetrovsk region",
+  "head_en": "Wines of the Dnipropetrovsk region"
  },
  {
   "head": "Вина Запоріжжя",
@@ -339,11 +362,15 @@ const REGIONS = [
       "t": "Біле вино",
       "n": "Рислінг",
       "g": null,
-      "b": 1900
+      "b": 1900,
+      "n_en": "Riesling"
      }
-    ]
+    ],
+    "fact_en": "A family winery from Zaporizhzhia, named after the village of Baburka."
    }
-  ]
+  ],
+  "region_en": "Zaporizhzhia",
+  "head_en": "Wines of Zaporizhzhia"
  },
  {
   "head": "Вина Сумщини",
@@ -361,23 +388,29 @@ const REGIONS = [
       "t": "Біле вино",
       "n": "Рудий лис",
       "g": null,
-      "b": 2200
+      "b": 2200,
+      "n_en": "Rudyi Lys (Red Fox)"
      },
      {
       "t": "Рожеве вино",
       "n": "Бусічка",
       "g": null,
-      "b": 2050
+      "b": 2050,
+      "n_en": "Busichka"
      },
      {
       "t": "Червоне вино",
       "n": "Їжачок",
       "g": null,
-      "b": 1950
+      "b": 1950,
+      "n_en": "Yizhachok (Hedgehog)"
      }
-    ]
+    ],
+    "fact_en": "A winery from the Sumy region working with hybrid grape varieties that are rare in Ukraine."
    }
-  ]
+  ],
+  "region_en": "Sumy region",
+  "head_en": "Wines of the Sumy region"
  },
  {
   "head": "Вина Закарпаття",
@@ -396,11 +429,16 @@ const REGIONS = [
       "t": "Помаранчеве вино",
       "n": "Трамінер Оранж",
       "g": null,
-      "b": 2000
+      "b": 2000,
+      "n_en": "Traminer Orange"
      }
-    ]
+    ],
+    "fact_en": "Serhiy Stakhovsky’s amphitheatre vineyards in Zakarpattia combine a Bordeaux vision with an unusual choice of grapes.",
+    "name_en": "Stakhovsky Wines"
    }
-  ]
+  ],
+  "region_en": "Zakarpattia",
+  "head_en": "Wines of Zakarpattia"
  },
  {
   "head": "Вина Прикарпаття",
@@ -418,17 +456,22 @@ const REGIONS = [
       "t": "Біле вино",
       "n": "Совіньйон Блан",
       "g": null,
-      "b": 2300
+      "b": 2300,
+      "n_en": "Sauvignon Blanc"
      },
      {
       "t": "Біле вино",
       "n": "Гевюрцтрамінер",
       "g": null,
-      "b": 2200
+      "b": 2200,
+      "n_en": "Gewürztraminer"
      }
-    ]
+    ],
+    "fact_en": "The Chara winery found its home in an Austrian building from 1860 in Ivano-Frankivsk. Its name joins “chara”, a goblet, and “garra”, a distillery."
    }
-  ]
+  ],
+  "region_en": "Prykarpattia",
+  "head_en": "Wines of Prykarpattia"
  },
  {
   "head": "Вина Київщини",
@@ -460,9 +503,12 @@ const REGIONS = [
       "g": 420,
       "b": 2300
      }
-    ]
+    ],
+    "fact_en": "The first biodynamic winery in Ukraine."
    }
-  ]
+  ],
+  "region_en": "Kyiv region",
+  "head_en": "Wines of the Kyiv region"
  },
  {
   "head": "Вина Чернігівщини",
@@ -500,9 +546,12 @@ const REGIONS = [
       "g": 395,
       "b": 1975
      }
-    ]
+    ],
+    "fact_en": "One of Ukraine’s northernmost wineries, set in a former fish-farm building in the Chernihiv region that looks like a castle."
    }
-  ]
+  ],
+  "region_en": "Chernihiv region",
+  "head_en": "Wines of the Chernihiv region"
  },
  {
   "head": "Вина Житомирщини",
@@ -520,9 +569,11 @@ const REGIONS = [
       "t": "Червоне вино",
       "n": "Каберне Совіньйон Reserve 2024",
       "g": null,
-      "b": 3400
+      "b": 3400,
+      "n_en": "Cabernet Sauvignon Reserve 2024"
      }
-    ]
+    ],
+    "fact_en": "Founder Mykola came to wine through his family’s farming heritage: his great-grandfather grew hops for beer."
    },
    {
     "id": "moncrafto",
@@ -536,11 +587,15 @@ const REGIONS = [
       "t": "Біле вино",
       "n": "Соларіс",
       "g": null,
-      "b": 1350
+      "b": 1350,
+      "n_en": "Solaris"
      }
-    ]
+    ],
+    "fact_en": "The winery in the Zhytomyr region is built on frost-hardy hybrid grapes that can survive Polissia winters."
    }
-  ]
+  ],
+  "region_en": "Zhytomyr region",
+  "head_en": "Wines of the Zhytomyr region"
  },
  {
   "head": "Вина Тернопільщини",
@@ -559,11 +614,15 @@ const REGIONS = [
       "t": "Рожеве вино",
       "n": "Рожевий Квадрат",
       "g": 320,
-      "b": 1850
+      "b": 1850,
+      "n_en": "Rozhevyi Kvadrat (Pink Square)"
      }
-    ]
+    ],
+    "fact_en": "It all started with the wish to make the wine that was missing in his native Husiatyn."
    }
-  ]
+  ],
+  "region_en": "Ternopil region",
+  "head_en": "Wines of the Ternopil region"
  },
  {
   "head": "Вина Хмельниччини",
@@ -581,15 +640,18 @@ const REGIONS = [
       "t": "Біле вино",
       "n": "Совіньйон Блан",
       "g": 375,
-      "b": 1875
+      "b": 1875,
+      "n_en": "Sauvignon Blanc"
      },
      {
       "t": "Червоне вино",
       "n": "Артефакт",
       "g": 420,
-      "b": 2100
+      "b": 2100,
+      "n_en": "Artefakt"
      }
-    ]
+    ],
+    "fact_en": "A winery built on its own terroir near Bakota, the “Ukrainian Atlantis”."
    },
    {
     "id": "zelenytsi",
@@ -603,21 +665,42 @@ const REGIONS = [
       "t": "Рожеве вино",
       "n": "Гурзуфський Рожевий",
       "g": 300,
-      "b": 1500
+      "b": 1500,
+      "n_en": "Gurzufskyi Rose"
      },
      {
       "t": "Червоне вино",
       "n": "Мускат Блау",
       "g": 340,
-      "b": 1700
+      "b": 1700,
+      "n_en": "Muscat Blau"
      }
-    ]
+    ],
+    "fact_en": "The vineyards of father and son Anatolii and Volodymyr Zelenets grow right in the heart of the Podilski Tovtry national park, among cliffs and canyons.",
+    "name_en": "Zelenytsi"
    }
-  ]
+  ],
+  "region_en": "Khmelnytskyi region",
+  "head_en": "Wines of the Khmelnytskyi region"
  }
 ];
 const WORLD = [{"t": "Ігристе вино", "n": "Masottina, Prosecco Treviso Extra Dry (Italy, Veneto)", "g": null, "b": 1650}, {"t": "Ігристе вино", "n": "Brut Reserve, Taittinger (France, Champagne)", "g": null, "b": 4000}, {"t": "Безалкогольне вино", "n": "Torre`s Muscat Natureo (Spain, Catalonia)", "g": 300, "b": 1500}];
-const WINERIES = REGIONS.flatMap(r => r.wineries.map(w => ({...w, region:r.region, re:new RegExp(r.re)})));
+const WINERIES = REGIONS.flatMap(r => r.wineries.map(w => ({...w, region:r.region, region_en:r.region_en, re:new RegExp(r.re)})));
+// Перемикач мови: українська / англійська
+const TYPE_EN = {'Ігристе вино':'Sparkling wine','Біле вино':'White wine','Біле солодке вино':'Sweet white wine','Рожеве вино':'Rosé wine','Помаранчеве вино':'Orange wine','Червоне вино':'Red wine','Безалкогольне вино':'Non-alcoholic wine'};
+const UI = {
+  uk:{title:'Винна мапа України', brand:'100 років тому вперед', h1:'Винна мапа України', lede:'Натисніть на точку, щоб побачити виноробню та її вина. Мапу можна наближати двома пальцями.',
+      list:'Винна карта', world:'Світові вина', onmap:'на мапі', fact:'Короткий факт', ml:'мл', cur:'₴', note:'Ціни вказано за келих 150 мл і за пляшку 750 мл.',
+      close:'Закрити', zin:'Наблизити', zout:'Віддалити', map:'Мапа України з виноробними регіонами'},
+  en:{title:'Wine Map of Ukraine', brand:'100 rokiv tomu vpered', h1:'Wine Map of Ukraine', lede:'Tap a point to see the winery and its wines. Pinch with two fingers to zoom the map.',
+      list:'Wine list', world:'World wines', onmap:'on the map', fact:'Short fact', ml:'ml', cur:'UAH', note:'Prices are per 150 ml glass and per 750 ml bottle.',
+      close:'Close', zin:'Zoom in', zout:'Zoom out', map:'Map of Ukraine with wine regions'}};
+let lang = 'uk';
+try { if(localStorage.getItem('lang') === 'en') lang = 'en'; } catch(e) {}
+if(location.hash === '#en') lang = 'en';
+const t = k => UI[lang][k];
+const tr = (o, k) => (lang === 'en' && o[k + '_en']) || o[k];
+const typeName = x => lang === 'en' ? (TYPE_EN[x] || x) : x;
 const TONE = {'Ігристе вино':'#EAD9A0','Біле вино':'#E3D27A','Біле солодке вино':'#E0B84F','Рожеве вино':'#E8A1A6','Помаранчеве вино':'#E09A45','Червоне вино':'#7A1F2B','Безалкогольне вино':'#CFD8B0'};
 const UA = [['cherkas','Черкащина'],['chernihiv','Чернігівщина'],['chernivtsi','Буковина'],['crimea','Крим'],['sevastopol','Севастополь'],
  ['dnipro','Дніпропетровщина'],['donetsk','Донеччина'],['frankiv','Івано-Франківщина'],['kharkiv','Харківщина'],['kherson','Херсонщина'],
@@ -708,7 +791,7 @@ function drawReal(m){
   for(const l of m.locations){
     const p = document.createElementNS(NS,'path');
     p.setAttribute('d', l.path);
-    p.dataset.key = (l.id + ' ' + l.name).toLowerCase();
+    p.dataset.key = (l.id + ' ' + l.name).toLowerCase(); p.dataset.en = l.name;
     svg.append(p);
   }
 }
@@ -725,16 +808,16 @@ function drawTiles(){
 function bottle(type){
   return `<svg viewBox="0 0 28 68" aria-hidden="true"><path d="M11 2h6v15c0 4 6 6 6 13v32a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V30c0-7 6-9 6-13z" fill="${TONE[type] || '#DDD'}" stroke="var(--ink)" stroke-width="1.6"/></svg>`;
 }
-const price = w => (w.g ? `<span>150 мл · ${w.g} ₴</span>` : '') + `<span>750 мл · ${w.b} ₴</span>`;
-const wineList = ws => `<ul class="wl">${ws.map(w => `<li>${bottle(w.t)}<span class="t">${w.t}</span><span class="n">${w.n}</span><span class="p">${price(w)}</span></li>`).join('')}</ul>`;
+const price = w => (w.g ? `<span>150 ${t('ml')} · ${w.g} ${t('cur')}</span>` : '') + `<span>750 ${t('ml')} · ${w.b} ${t('cur')}</span>`;
+const wineList = ws => `<ul class="wl">${ws.map(w => `<li>${bottle(w.t)}<span class="t">${typeName(w.t)}</span><span class="n">${tr(w,'n')}</span><span class="p">${price(w)}</span></li>`).join('')}</ul>`;
 
 function select(id, scroll){
   const w = WINERIES.find(x => x.id === id); if(!w) return;
   current = id;
   card.innerHTML = `
-    <button class="close" type="button" aria-label="Закрити">✕</button>
-    <div><p class="region">${w.region}</p><h2>${w.name}</h2></div>
-    <div class="factbox"><p class="cap">Короткий факт</p><p class="fact">${w.fact}</p></div>
+    <button class="close" type="button" aria-label="${t('close')}">✕</button>
+    <div><p class="region">${tr(w,'region')}</p><h2>${tr(w,'name')}</h2></div>
+    <div class="factbox"><p class="cap">${t('fact')}</p><p class="fact">${tr(w,'fact')}</p></div>
     ${wineList(w.wines)}`;
   svg.querySelectorAll('.sel').forEach(e => e.classList.remove('sel'));
   svg.querySelector(`[data-wine="${id}"]`)?.classList.add('sel');
@@ -746,7 +829,7 @@ function select(id, scroll){
 function wire(){
   const vb = svg.viewBox.baseVal;
   svg.querySelectorAll('[data-key]').forEach(el => {
-    const t = document.createElementNS(NS,'title'); t.textContent = uaName(el.dataset.key); el.append(t);
+    el.append(document.createElementNS(NS,'title'));
   });
   const seen = {};
   for(const w of WINERIES){
@@ -766,17 +849,38 @@ function wire(){
     pin.className = 'pin' + (w.pos ? ' ' + w.pos : ''); pin.type = 'button'; pin.dataset.id = w.id;
     pin.style.left = ((px - vb.x) / vb.width * 100) + '%';
     pin.style.top = ((py - vb.y) / vb.height * 100) + '%';
-    pin.innerHTML = `<i></i><span>${w.name}</span>`;
+    pin.innerHTML = `<i></i><span></span>`;
     pin.addEventListener('click', () => { if(!dragged) select(w.id, true); });
     inner.append(pin);
   }
-  rows.innerHTML = REGIONS.map(r => `<h4 class="rg">${r.head}</h4>` + r.wineries.map(w =>
-      `<button class="row" type="button" data-id="${w.id}"><b>${w.name}</b><em>на мапі</em></button>${wineList(w.wines)}`).join('')).join('')
-    + `<h4 class="rg">Світові вина</h4>${wineList(WORLD)}`;
-  rows.querySelectorAll('.row').forEach(b => b.addEventListener('click', () => { select(b.dataset.id, true); if(!narrow()) mapEl.scrollIntoView({behavior:'smooth', block:'start'}); }));
-  select(current || WINERIES[0].id, false);
+  rows.addEventListener('click', e => { const b = e.target.closest('.row'); if(!b) return; select(b.dataset.id, true); if(!narrow()) mapEl.scrollIntoView({behavior:'smooth', block:'start'}); });
+  renderLang();
   apply();
 }
+
+// Перемальовує всі тексти сторінки поточною мовою
+function renderLang(){
+  document.documentElement.lang = lang === 'en' ? 'en' : 'uk';
+  document.title = t('title');
+  for(const k of ['brand','h1','lede','list','note']) document.getElementById('t-' + k).textContent = t(k);
+  svg.setAttribute('aria-label', t('map'));
+  document.getElementById('zin').setAttribute('aria-label', t('zin'));
+  document.getElementById('zout').setAttribute('aria-label', t('zout'));
+  document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  svg.querySelectorAll('[data-key] > title').forEach(ti => { const el = ti.parentNode; ti.textContent = lang === 'en' && el.dataset.en ? el.dataset.en : uaName(el.dataset.key); });
+  mapEl.querySelectorAll('.pin').forEach(p => { const w = WINERIES.find(x => x.id === p.dataset.id); p.querySelector('span').textContent = tr(w,'name'); });
+  rows.innerHTML = REGIONS.map(r => `<h4 class="rg">${tr(r,'head')}</h4>` + r.wineries.map(w =>
+      `<button class="row" type="button" data-id="${w.id}"><b>${tr(w,'name')}</b><em>${t('onmap')}</em></button>${wineList(w.wines)}`).join('')).join('')
+    + `<h4 class="rg">${t('world')}</h4>${wineList(WORLD)}`;
+  const open = card.classList.contains('open');
+  select(current || WINERIES[0].id, false);
+  if(open) card.classList.add('open');
+}
+document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => {
+  lang = b.dataset.lang;
+  try { localStorage.setItem('lang', lang); } catch(e) {}
+  renderLang();
+}));
 
 try { drawReal(await loadShapes()); realMap = true; }
 catch(e){ svg.replaceChildren(); drawTiles(); }
