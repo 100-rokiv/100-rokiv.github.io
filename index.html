@@ -148,6 +148,15 @@ header{position:relative}
 .langs button{font:500 12px/1 var(--body);letter-spacing:.16em;padding:8px 12px;border:0;background:var(--bg);color:var(--ink);cursor:pointer}
 .langs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .langs button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* — винна карта за типами — */
+.rows .wl{border-top:1px solid var(--line)}
+.wl li:has(> .wi){display:block;padding:0}
+.wl .wi{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:12px;row-gap:2px;align-items:center;width:100%;padding:12px 0;
+  background:none;border:0;text-align:left;font:inherit;color:inherit}
+.wl button.wi{cursor:pointer}
+.wl button.wi:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.wl .wi u{text-decoration-thickness:1px;text-underline-offset:3px}
 </style>
 
 </head>
@@ -700,6 +709,14 @@ try { if(localStorage.getItem('lang') === 'en') lang = 'en'; } catch(e) {}
 if(location.hash === '#en') lang = 'en';
 const t = k => UI[lang][k];
 const tr = (o, k) => (lang === 'en' && o[k + '_en']) || o[k];
+const GROUPS = [
+  {uk:'Ігристі', en:'Sparkling', types:['Ігристе вино']},
+  {uk:'Білі', en:'White', types:['Біле вино']},
+  {uk:'Рожеві', en:'Rosé', types:['Рожеве вино']},
+  {uk:'Помаранчеві', en:'Orange', types:['Помаранчеве вино']},
+  {uk:'Червоні', en:'Red', types:['Червоне вино']},
+  {uk:'Десертні', en:'Dessert', types:['Біле солодке вино']},
+  {uk:'Безалкогольні', en:'Non-alcoholic', types:['Безалкогольне вино']}];
 const typeName = x => lang === 'en' ? (TYPE_EN[x] || x) : x;
 const TONE = {'Ігристе вино':'#EAD9A0','Біле вино':'#E3D27A','Біле солодке вино':'#E0B84F','Рожеве вино':'#E8A1A6','Помаранчеве вино':'#E09A45','Червоне вино':'#7A1F2B','Безалкогольне вино':'#CFD8B0'};
 const UA = [['cherkas','Черкащина'],['chernihiv','Чернігівщина'],['chernivtsi','Буковина'],['crimea','Крим'],['sevastopol','Севастополь'],
@@ -853,7 +870,7 @@ function wire(){
     pin.addEventListener('click', () => { if(!dragged) select(w.id, true); });
     inner.append(pin);
   }
-  rows.addEventListener('click', e => { const b = e.target.closest('.row'); if(b) focusOn(b.dataset.id); });
+  rows.addEventListener('click', e => { const b = e.target.closest('.wi[data-id]'); if(b) focusOn(b.dataset.id); });
   renderLang();
   apply();
 }
@@ -880,9 +897,17 @@ function renderLang(){
   document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
   svg.querySelectorAll('[data-key] > title').forEach(ti => { const el = ti.parentNode; ti.textContent = lang === 'en' && el.dataset.en ? el.dataset.en : uaName(el.dataset.key); });
   mapEl.querySelectorAll('.pin').forEach(p => { const w = WINERIES.find(x => x.id === p.dataset.id); p.querySelector('span').textContent = tr(w,'name'); });
-  rows.innerHTML = REGIONS.map(r => `<h4 class="rg">${tr(r,'head')}</h4>` + r.wineries.map(w =>
-      `<button class="row" type="button" data-id="${w.id}"><b>${tr(w,'name')}</b><em>${t('onmap')}</em></button>${wineList(w.wines)}`).join('')).join('')
-    + `<h4 class="rg">${t('world')}</h4>${wineList(WORLD)}`;
+  // Винна карта під мапою: згруповано за типом вина
+  const all = WINERIES.flatMap(w => w.wines.map(x => ({...x, w})));
+  for(const x of WORLD) all.push({...x, w:null});
+  rows.innerHTML = GROUPS.map(g => {
+    const items = all.filter(x => g.types.includes(x.t));
+    if(!items.length) return '';
+    return `<h4 class="rg">${g[lang]}</h4><ul class="wl">` + items.map(x => {
+      const inner = `${bottle(x.t)}<span class="t">${x.w ? `<u>${tr(x.w,'name')}</u> · ${tr(x.w,'region')}` : t('world')}</span><span class="n">${tr(x,'n')}</span><span class="p">${price(x)}</span>`;
+      return x.w ? `<li><button type="button" class="wi" data-id="${x.w.id}" aria-label="${tr(x,'n')}, ${tr(x.w,'name')}: ${t('onmap')}">${inner}</button></li>` : `<li><div class="wi">${inner}</div></li>`;
+    }).join('') + `</ul>`;
+  }).join('');
   const open = card.classList.contains('open');
   select(current || WINERIES[0].id, false);
   if(open) card.classList.add('open');
