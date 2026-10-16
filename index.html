@@ -693,7 +693,7 @@ const REGIONS = [
   "head_en": "Wines of the Khmelnytskyi region"
  }
 ];
-const WORLD = [{"t": "Ігристе вино", "n": "Masottina, Prosecco Treviso Extra Dry (Italy, Veneto)", "g": null, "b": 1650}, {"t": "Ігристе вино", "n": "Brut Reserve, Taittinger (France, Champagne)", "g": null, "b": 4000}, {"t": "Безалкогольне вино", "n": "Torre`s Muscat Natureo (Spain, Catalonia)", "g": 300, "b": 1500}];
+const WORLD = [];
 const WINERIES = REGIONS.flatMap(r => r.wineries.map(w => ({...w, region:r.region, region_en:r.region_en, re:new RegExp(r.re)})));
 // Перемикач мови: українська / англійська
 const TYPE_EN = {'Ігристе вино':'Sparkling wine','Біле вино':'White wine','Біле солодке вино':'Sweet white wine','Рожеве вино':'Rosé wine','Помаранчеве вино':'Orange wine','Червоне вино':'Red wine','Безалкогольне вино':'Non-alcoholic wine'};
