@@ -186,7 +186,7 @@ header{position:relative}
 </div>
 
 <script type="module">
-const REGIONS = [
+let REGIONS = [
  {
   "head": "Вина Одещини",
   "region": "Одещина",
@@ -694,7 +694,80 @@ const REGIONS = [
  }
 ];
 const WORLD = [];
-const WINERIES = REGIONS.flatMap(r => r.wineries.map(w => ({...w, region:r.region, region_en:r.region_en, re:new RegExp(r.re)})));
+const buildWineries = () => REGIONS.flatMap(r => r.wineries.map(w => ({...w, region:r.region, region_en:r.region_en, re:new RegExp(r.re || '^$')})));
+let WINERIES = buildWineries();
+
+// ——— Винна карта з Google Таблиці ———
+// Сайт читає таблицю при кожному відкритті. Якщо таблиця недоступна, лишається вбудована копія вище.
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1M5eWb8Bs_TyT3v0Owm_sdTfWzM0T84PXnxxG_txvs-8/gviz/tq?tqx=out:csv&gid=1755334168&headers=1';
+const REGION_RE = [['оде','odes'],['микола','mykola'],['дніпро','dnipro'],['запор','zapori'],['сум','sumy'],['закарпат','zakarpat|transcarpat'],
+  ['прикарпат','frankiv'],['франків','frankiv'],['київ','kyiv|kiev'],['черніг','chernihiv'],['житомир','zhytomyr'],['терноп','ternopil'],
+  ['хмельн','khmelnyt'],['поділ','khmelnyt|vinnyts'],['львів','lviv'],['вінни','vinnyts'],['херсон','kherson'],['буковин','chernivtsi'],['чернів','chernivtsi'],
+  ['полтав','poltava'],['черка','cherkas'],['кіровоград','kirovo|kropyv'],['кропив','kirovo|kropyv'],['харків','kharkiv'],['волин','volyn'],
+  ['рівнен','rivne'],['донеч','donetsk'],['донецьк','donetsk'],['луган','luhansk'],['крим','crimea']];
+function parseCSV(text){
+  const rows = []; let row = [], cell = '', q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){ if(c === '"'){ if(text[i+1] === '"'){ cell += '"'; i++; } else q = false; } else cell += c; }
+    else if(c === '"') q = true;
+    else if(c === ','){ row.push(cell); cell = ''; }
+    else if(c === '\n' || c === '\r'){ if(c === '\r' && text[i+1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+function normType(s){
+  const x = s.toLowerCase();
+  if(x.includes('ігрист')) return 'Ігристе вино';
+  if(x.includes('безалк')) return 'Безалкогольне вино';
+  if(x.includes('солод') || x.includes('десерт')) return 'Біле солодке вино';
+  if(x.includes('рожев')) return 'Рожеве вино';
+  if(x.includes('помаранч') || x.includes('оранж')) return 'Помаранчеве вино';
+  if(x.includes('червон')) return 'Червоне вино';
+  if(x.includes('біл')) return 'Біле вино';
+  return s.trim();
+}
+async function loadSheet(){
+  const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 6000);
+  const res = await fetch(SHEET_CSV + '&t=' + Date.now(), {signal: ctl.signal}); clearTimeout(timer);
+  if(!res.ok) throw new Error('sheet ' + res.status);
+  const rows = parseCSV(await res.text());
+  const head = rows.shift().map(h => h.trim().toLowerCase());
+  const col = name => head.indexOf(name.toLowerCase());
+  const C = {show:col('Показувати'), region:col('Регіон'), winery:col('Виноробня'), type:col('Тип'), name:col('Назва вина'), g:col('Ціна 150 мл'), b:col('Ціна 750 мл'),
+    fact:col('Короткий факт'), coords:col('Координати'), pos:col('Підпис'), winery_en:col('Виноробня EN'), region_en:col('Регіон EN'), name_en:col('Назва вина EN'), fact_en:col('Короткий факт EN')};
+  if(C.winery < 0 || C.name < 0 || C.type < 0) throw new Error('sheet columns');
+  const v = (r, k) => C[k] < 0 ? '' : String(r[C[k]] ?? '').trim();
+  const num = x => { const d = x.replace(/[^\d]/g, ''); return d ? Number(d) : null; };
+  const regions = [], byName = {};
+  for(const r of rows){
+    const wname = v(r,'winery'); if(!wname) continue;
+    let w = byName[wname];
+    if(!w){ w = byName[wname] = {id:'w' + Object.keys(byName).length, name:wname, wines:[]}; }
+    for(const [k, src] of [['fact','fact'],['fact_en','fact_en'],['name_en','winery_en']]) if(!w[k] && v(r,src)) w[k] = v(r,src);
+    if(!w.lat){ const m = v(r,'coords').match(/(-?\d+(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d+(?:[.,]\d+)?)/);
+      if(m){ w.lat = parseFloat(m[1].replace(',', '.')); w.lon = parseFloat(m[2].replace(',', '.')); } }
+    if(!w.pos){ const p = v(r,'pos').toLowerCase(); if(p.startsWith('звер')) w.pos = 'up'; else if(p.startsWith('збок')) w.pos = 'side'; }
+    if(!w.region && v(r,'region')){
+      w.region = v(r,'region');
+      let reg = regions.find(x => x.region === w.region);
+      if(!reg){ const low = w.region.toLowerCase(); reg = {region:w.region, region_en:'', re:(REGION_RE.find(([k]) => low.includes(k)) || [,''])[1], wineries:[]}; regions.push(reg); }
+      reg.wineries.push(w);
+    }
+    if(v(r,'region_en')){ const reg = regions.find(x => x.region === w.region); if(reg && !reg.region_en) reg.region_en = v(r,'region_en'); }
+    if(v(r,'show').toLowerCase().startsWith('н')) continue;
+    const n = v(r,'name'), b = num(v(r,'b')); if(!n) continue;
+    w.wines.push({t:normType(v(r,'type')), n, n_en:v(r,'name_en') || undefined, g:num(v(r,'g')), b});
+  }
+  for(const reg of regions) reg.wineries = reg.wineries.filter(w => w.wines.length && w.fact !== undefined || w.wines.length);
+  const out = regions.filter(reg => reg.wineries.some(w => w.wines.length));
+  out.forEach(reg => reg.wineries = reg.wineries.filter(w => w.wines.length));
+  if(!out.length) throw new Error('sheet empty');
+  return out;
+}
+const sheetPromise = loadSheet().catch(e => { console.warn('Винна карта: використано вбудовану копію', e); return null; });
 // Перемикач мови: українська / англійська
 const TYPE_EN = {'Ігристе вино':'Sparkling wine','Біле вино':'White wine','Біле солодке вино':'Sweet white wine','Рожеве вино':'Rosé wine','Помаранчеве вино':'Orange wine','Червоне вино':'Red wine','Безалкогольне вино':'Non-alcoholic wine'};
 const UI = {
@@ -716,7 +789,8 @@ const GROUPS = [
   {uk:'Помаранчеві', en:'Orange', types:['Помаранчеве вино']},
   {uk:'Червоні', en:'Red', types:['Червоне вино']},
   {uk:'Десертні', en:'Dessert', types:['Біле солодке вино']},
-  {uk:'Безалкогольні', en:'Non-alcoholic', types:['Безалкогольне вино']}];
+  {uk:'Безалкогольні', en:'Non-alcoholic', types:['Безалкогольне вино']},
+  {uk:'Інше', en:'Other', types:null}];
 const typeName = x => lang === 'en' ? (TYPE_EN[x] || x) : x;
 const TONE = {'Ігристе вино':'#EAD9A0','Біле вино':'#E3D27A','Біле солодке вино':'#E0B84F','Рожеве вино':'#E8A1A6','Помаранчеве вино':'#E09A45','Червоне вино':'#7A1F2B','Безалкогольне вино':'#CFD8B0'};
 const UA = [['cherkas','Черкащина'],['chernihiv','Чернігівщина'],['chernivtsi','Буковина'],['crimea','Крим'],['sevastopol','Севастополь'],
@@ -851,8 +925,8 @@ function wire(){
   const seen = {};
   for(const w of WINERIES){
     const el = [...svg.querySelectorAll('[data-key]')].find(e => w.re.test(e.dataset.key));
-    if(!el) continue;
-    const b = el.getBBox(), n = seen[w.region] = (seen[w.region] || 0) + 1;
+    if(realMap ? !(w.lat && w.lon) : !el) continue;
+    const b = el ? el.getBBox() : null, n = seen[w.region] = (seen[w.region] || 0) + 1;
     const [px, py] = realMap ? project(w.lon, w.lat) : [b.x + b.width/2, b.y + b.height * n / 4];
     let zone = el;
     if(realMap){ // невелика зона довкола виноробні замість усієї області
@@ -901,7 +975,8 @@ function renderLang(){
   const all = WINERIES.flatMap(w => w.wines.map(x => ({...x, w})));
   for(const x of WORLD) all.push({...x, w:null});
   rows.innerHTML = GROUPS.map(g => {
-    const items = all.filter(x => g.types.includes(x.t));
+    const known = GROUPS.flatMap(x => x.types || []);
+    const items = all.filter(x => g.types ? g.types.includes(x.t) : !known.includes(x.t));
     if(!items.length) return '';
     return `<h4 class="rg">${g[lang]}</h4><ul class="wl">` + items.map(x => {
       const inner = `${bottle(x.t)}<span class="t">${x.w ? `<u>${tr(x.w,'name')}</u> · ${tr(x.w,'region')}` : t('world')}</span><span class="n">${tr(x,'n')}</span><span class="p">${price(x)}</span>`;
@@ -920,6 +995,8 @@ document.querySelectorAll('.langs button').forEach(b => b.addEventListener('clic
 
 try { drawReal(await loadShapes()); realMap = true; }
 catch(e){ svg.replaceChildren(); drawTiles(); }
+const fromSheet = await sheetPromise;
+if(fromSheet){ REGIONS = fromSheet; WINERIES = buildWineries(); }
 wire();
 </script>
 </body>
